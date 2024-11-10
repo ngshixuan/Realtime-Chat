@@ -1,13 +1,84 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body{
+    background-color: #f0f0f0;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+
+.loginForm{
+    background-color: white;
+    margin: 10% auto;
+    width: 80%;
+}
+
+.login-details{
+    padding: 15%;
+}
+
+.ant-input-affix-wrapper{
+    height: 50px;
+}
+
+.ant-form-item{
+    margin: 0;
+}
+
+.ant-input-prefix {
+    margin-inline-end: 10px !important;
+}
+
+img{
+    height: 700px;
+    object-fit: cover;
+}
+
+.login-btn{
+    background-color: black;
+    padding: 20px 50px;
+}
+
+.login-btn:hover{
+    background-color: #333 !important;
+}
+
+.signUp-btn{
+    padding: 20px 50px;
+    background-color: white;
+    border: 1px solid rgb(209 213 219);  
+    box-shadow: none;
+}
+
+.signUp-btn > span{
+    color: rgb(31 41 55);
+}
+
+.signUp-btn:hover{
+    background-color: #f0f0f0 !important;
+}
+
+.ant-checkbox-wrapper span{
+    color: rgb(107 114 128);    
+}
+
+/* Unchecked checkbox styles */
+.custom-checkbox .ant-checkbox-inner {
+    background-color: #fff;
+    border-color: rgb(107 114 128);
+}
+
+/* Checked checkbox styles */
+.custom-checkbox .ant-checkbox-checked .ant-checkbox-inner {
+    background-color: #000 !important;
+    border-color: #000 !important;    
+}
+
+/* Customize checkmark color */
+.custom-checkbox .ant-checkbox-inner::after {
+    border-color: #fff;
+}
+
+.custom-checkbox:hover .ant-checkbox-inner {
+    border-color: #000 !important;        
 }
