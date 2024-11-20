@@ -1,21 +1,40 @@
-import { LockOutlined, UserOutlined } from '@ant-design/icons';
 import { Button, Checkbox, Form, Input } from 'antd';
 import React, {useState} from 'react';
 import { Carousel } from 'antd';
-import { db } from '../firebase/firebase-config';
+import { db, auth } from '../firebase/firebase-config';
 import {addDoc, collection} from 'firebase/firestore'
 import { useNavigate } from 'react-router-dom';
 import imgSrc from "../asset/images/login.jpg";
+import { signInWithEmailAndPassword } from "firebase/auth";
+
 
 const Login = () => {
 
     console.log(db);
   
     const navigate = useNavigate();
-  
+    const [error, setError] = useState(null);
 
     const handleRegisterClick = () => {
         navigate("/register");
+    }
+
+    const signIn = async (values) => {
+        try {
+            if(!values.email || !values.password){
+                setError("Please enter both email and password");
+                return;
+            }
+
+            await signInWithEmailAndPassword(auth, values.email, values.password);
+            setError(null);
+            console.log("Login Success");
+            
+        } catch (error) {
+            console.log(error.message);
+        }
+        
+        
     }
 
     return(
@@ -33,17 +52,19 @@ const Login = () => {
                     style={{
                     maxWidth: 360,
                     }}
+                    onFinish={signIn}
                     >
                 <Form.Item
-                name="username"
+                name="email"
                 rules={[
                     {
                     required: true,
-                    message: 'Please input your Username!',
+                    message: 'Please input your Email!',
                     },
                 ]}
+                className='pb-4'
                 >
-                <Input prefix={<UserOutlined />} placeholder="Username" />
+                <Input className='p-3' placeholder="Email Address" />
                 </Form.Item>
                 <Form.Item
                 name="password"
@@ -54,17 +75,19 @@ const Login = () => {
                     },
                 ]}
                 >
-                <Input prefix={<LockOutlined />} type="password" placeholder="Password" />
+                    <Input className='p-3' type="password" placeholder="Password" />
                 </Form.Item>
+                
                 <Form.Item className='py-6'>
-                <Checkbox className='custom-checkbox'>Remember me</Checkbox>
+                    <Checkbox className='custom-checkbox'>Remember me</Checkbox>
+                    {error && <div className="text-red-500 text-sm mt-2">{error}</div>}
                 </Form.Item>
 
                 <Form.Item>
                 <Button flex type="primary" className='mr-4 login-btn' htmlType="submit">
                     Login
                 </Button>
-                <Button onClick={handleRegisterClick} flex type="primary" className='signUp-btn' htmlType="submit">
+                <Button onClick={handleRegisterClick} flex type="primary" className='signUp-btn'>
                     Sign up
                 </Button>
                 </Form.Item>

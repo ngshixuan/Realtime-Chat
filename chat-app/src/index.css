@@ -82,3 +82,13 @@ img{
 .custom-checkbox:hover .ant-checkbox-inner {
     border-color: #000 !important;        
 }
+
+/* Hover State */
+.ant-input:hover {
+    border-color: #000; /* Change border color */
+  }
+  
+  /* Focus (Clicked) State */
+  .ant-input:focus {
+    border-color: #000; /* Change border color on focus */
+  }
