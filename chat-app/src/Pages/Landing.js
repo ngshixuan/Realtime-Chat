@@ -1,6 +1,5 @@
 
 import { useState } from "react";
-import logo from "../asset/images/logo.png";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {faMagnifyingGlass, faFeather, faRightFromBracket, faLocationArrow} from '@fortawesome/free-solid-svg-icons'
 import {faUser} from '@fortawesome/free-regular-svg-icons'

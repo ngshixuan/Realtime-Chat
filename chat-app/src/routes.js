@@ -2,6 +2,7 @@ import {createBrowserRouter} from "react-router-dom";
 import Login from "./Pages/Login";
 import Register from "./Pages/Register";
 import LandingPage from "./Pages/Landing";
+import Chat from "./Pages/Chat"
 
 const router = createBrowserRouter([
     {
@@ -14,7 +15,7 @@ const router = createBrowserRouter([
     },
     {
         path:"/chat",
-        element:<LandingPage/>
+        element:<Chat/>
     }
 ])
 
