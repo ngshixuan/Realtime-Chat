@@ -1,4 +1,4 @@
-import { Button, Checkbox, Form, Input } from 'antd';
+import { Button, Checkbox, Form, Input, message, Typography } from 'antd';
 import React, {useState} from 'react';
 import { Carousel } from 'antd';
 import { db, auth } from '../firebase/firebase-config';
@@ -6,6 +6,9 @@ import {addDoc, collection} from 'firebase/firestore'
 import { useNavigate } from 'react-router-dom';
 import imgSrc from "../asset/images/login.jpg";
 import { signInWithEmailAndPassword } from "firebase/auth";
+import { sendPasswordResetEmail } from 'firebase/auth';
+import FormItem from 'antd/es/form/FormItem';
+import Link from 'antd/es/typography/Link';
 
 
 const Login = () => {
@@ -29,12 +32,24 @@ const Login = () => {
             await signInWithEmailAndPassword(auth, values.email, values.password);
             setError(null);
             console.log("Login Success");
+            navigate("/chat");
             
         } catch (error) {
             console.log(error.message);
         }
         
         
+    }
+
+    const [email, setEmail] = useState("")
+
+    const handleResetPassword = async() => {
+        try{
+            await sendPasswordResetEmail(auth, email)
+            message.success("Password reset email sent! Please check your inbox.")
+        }catch (error){
+            message.error(error.message)
+        }
     }
 
     return(
@@ -64,7 +79,7 @@ const Login = () => {
                 ]}
                 className='pb-4'
                 >
-                <Input className='p-3' placeholder="Email Address" />
+                <Input className='p-3' placeholder="Email Address" value={email} onChange={(event)=>setEmail(event.target.value)}/>
                 </Form.Item>
                 <Form.Item
                 name="password"
@@ -81,6 +96,7 @@ const Login = () => {
                 <Form.Item className='py-6'>
                     <Checkbox className='custom-checkbox'>Remember me</Checkbox>
                     {error && <div className="text-red-500 text-sm mt-2">{error}</div>}
+                    <Link onClick={handleResetPassword} className='text-sm mt-2 justify-end'>Forgot Password?</Link>
                 </Form.Item>
 
                 <Form.Item>
