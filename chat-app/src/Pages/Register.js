@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { db, auth } from "../firebase/firebase-config";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { collection, setDoc, doc } from 'firebase/firestore';
 
 const Register = () => {
     const navigate = useNavigate();
@@ -18,12 +19,30 @@ const Register = () => {
             }
 
             const userCredentials = await createUserWithEmailAndPassword(auth, values.email, values.password);
+            try{
+                setDoc(doc(db, "Users", userCredentials.user.uid), {
+                    username: values.username,
+                    email: values.email
+                })
+            }catch(err){
+                setError(err)
+                console.log("Error create Firestore DB: ", err)
+            }
             console.log(userCredentials.user);
             
             setError(null);
             navigate("/");
         } catch (error) {
-            setError(error.message)
+            // setError(error.message)
+            if(error.code === 'auth/invalid-credential'){
+                setError("Wrong email or password")
+            }else if(error.code === 'auth/user-not-found'){
+                setError("No user found with this email address")
+            }else if(error.code === 'auth/invalid-email'){
+                setError("Please enter a valid email address")
+            }else{
+                setError("An error occurred. Please try again.")
+            }
         }
         
     }
@@ -85,7 +104,7 @@ const Register = () => {
                     {error && <div className="text-red-500 text-sm mt-2">{error}</div>}
                     </Form.Item>
                     <Form.Item>
-                    <Button className='login-btn mt-6' type='primary' flex htmlType='submit' onClick={signUp}>
+                    <Button className='login-btn mt-6' type='primary' flex htmlType='submit'>
                         Create Account
                     </Button>
                     </Form.Item>

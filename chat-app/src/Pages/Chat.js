@@ -2,23 +2,27 @@ import ChatIcon from '@mui/icons-material/Chat';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import LogoutIcon from '@mui/icons-material/Logout';
 import SearchIcon from '@mui/icons-material/Search';
-import Input from '@mui/material/Input';
 import InputAdornment from '@mui/material/InputAdornment';
 import { TextField } from '@mui/material';
 import InsertEmoticonIcon from '@mui/icons-material/InsertEmoticon';
-import SendIcon from '@mui/icons-material/Send';
 import { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { signOut, onAuthStateChanged } from 'firebase/auth';
+import { auth } from '../firebase/firebase-config';
+import { getUserData, useAuth } from '../firebase/server-side';
 
+// Dialogbox that on the right hand side which send the conversations
 const DialogboxSend = ({input}) => {
   return(
     <>
     <div className="dialogbox-sent flex justify-end py-2">
-      <div className="dialogbox-sent-content bg-white text-black border border-black min-h-11 max-w-[80%] p-2">This is the message. Word Wrap. Word Wrap. Word Wrap. Word Wrap. Word Wrap. Word Wrap. Word Wrap. Word Wrap. Word Wrap. Word Wrap. Word Wrap. Word Wrap. {input}</div>
+      <div className="dialogbox-sent-content bg-white text-black border border-black min-h-11 max-w-[80%] p-2">{input}</div>
     </div>
     </>
   )
 }
 
+// Dialogbox that on the left hand side which receive the conversations
 const DialogboxReceive = () => {
   return(
     <>
@@ -29,6 +33,7 @@ const DialogboxReceive = () => {
   )
 }
 
+// A box that display the date and time
 const DialogboxDate = () => {
   const datetime = new Date().toLocaleDateString()
   return(
@@ -42,6 +47,7 @@ const DialogboxDate = () => {
   )
 }
 
+// A component that used to show each of the user saved contact person
 const ContactUser = ({username}) => {  
   return(
     <>
@@ -57,31 +63,72 @@ const ContactUser = ({username}) => {
   )
 }
 
+// Main chatting app
 const Chat = () => {
 
+  // get user contact details
+  const user = useAuth()
+  const [uid, setUid] = useState(null)
+  const [contact, setContact] = useState([])
+  const [username, setUsername] = useState(null)
+  useEffect(() => {
+    if(user?.uid){
+      setUid(user.uid)
+    }
+  }, [user])
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if(uid){
+        const userdata = await getUserData(uid)
+        if(userdata){
+          setUsername(userdata.username)
+          setContact(userdata.contact)
+        }
+      }
+    }
+    fetchUserData()
+  }, [uid])
+  
   const [inputData, setInputData] = useState('')
   const [messages, setMessages] = useState([])
-
+  
   const handleInputChange = (event) => {
     setInputData(event.target.value)
   }
-
+  
+  // When user type some content and press ENTER button, will update the messages
   const handleInputData = (event) =>{
     if(event.key==='Enter' && inputData.trim() !==''){
       setMessages((prevMessages) => [...prevMessages, inputData]);
       setInputData('')
     }
   }
-
+  
+  // This function use to scroll the chatting area to the bottom
   const chatEndRef = useRef(null);
-
   useEffect(() => {
     if(chatEndRef.current){
       chatEndRef.current.scrollIntoView({behavior:'smooth'});
     }
   }, [messages]);
-
+  
   const usernameDetails = 'User';
+  
+  // sign-out function
+  const navigate = useNavigate()
+  const handleSignOut = async () => {
+    try{
+      await signOut(auth)
+      console.log("Logout Success")
+      navigate("/")
+    }catch(err){
+      console.error("Logout error: ", err.message)
+    }
+  }
+
+  // display UID and username
+  console.log(username, " : ", uid)
 
   return(
     <>
@@ -105,8 +152,8 @@ const Chat = () => {
                         <AccountCircleIcon sx={{fontSize:'2.5rem'}}/>
                       </div>
                     </div>
-                    <div className="logout flex justify-center">
-                      <div className="logout-bg rounded-lg border border-slate-500 bg-white lg:size-16 flex items-center justify-center">
+                    <div className="logout flex justify-center" onClick={handleSignOut}>
+                      <div className="logout-bg rounded-lg border border-slate-500 bg-white lg:size-16 flex items-center justify-center hover:bg-black hover:text-white">
                         <LogoutIcon sx={{fontSize:'2.5rem'}}/>
                       </div>
                     </div>
@@ -133,23 +180,12 @@ const Chat = () => {
                       </div>
                     </div>
                     <div className="contact-section basis-11/12 overflow-y-auto w-full">
-                      <ContactUser username={usernameDetails}/>
-                      <ContactUser username={usernameDetails}/>
-                      <ContactUser username={usernameDetails}/>
-                      <ContactUser username={usernameDetails}/>
-                      <ContactUser username={usernameDetails}/>
-                      <ContactUser username={usernameDetails}/>
-                      <ContactUser username={usernameDetails}/>
-                      <ContactUser username={usernameDetails}/>
-                      <ContactUser username={usernameDetails}/>
-                      <ContactUser username={usernameDetails}/>
-                      <ContactUser username={usernameDetails}/>
-                      <ContactUser username={usernameDetails}/>
-                      <ContactUser username={usernameDetails}/>
-                      <ContactUser username={usernameDetails}/>
-                      <ContactUser username={usernameDetails}/>
-                      <ContactUser username={usernameDetails}/>
-                      <ContactUser username={usernameDetails}/>
+                      {/* {getContact("DocumentID", UID)} */}
+                      {contact.length === 0 ? (<div></div>) : (
+                        contact.map((contactItem, index) => (
+                          <ContactUser key={index} username={contactItem}/>
+                        ))
+                      )}
                       {/* .contact-person.h-24.flex.items-center.justify-center.px-4*12{Contact $} */}
                       {/* <div className="contact-person h-24 flex items-center px-4">Contact 1</div>
                       <div className="contact-person h-24 flex items-center px-4">Contact 2</div>
@@ -170,21 +206,22 @@ const Chat = () => {
               <div className="chat w-2/3">
                 <div className="chat-content h-full border-l border-black flex flex-col">
                   <div className="chat-title basis-1/12 border-b border-black">
+                  {username ? (
                     <div className="chat-title-section h-full flex items-center p-4 gap-4">
                       <div className="chat-profile border border-black rounded-full relative">
                         <AccountCircleIcon sx={{fontSize:'2.5rem'}}/>
                         <div className="chat-status absolute rounded-full size-3 bg-green-500 bottom-0 right-0"></div>
                       </div>
                       <div className="chat-user">
-                        <div className="chat-user-section text-lg">User1</div>
+                        <div className="chat-user-section text-lg">{username}</div>
                       </div>
                     </div>
+                  ): (<div></div>)}
                   </div>
                   <div className="chat-section basis-10/12 h-5/6 bg-stone-200">
                     <div className="chat-log-content h-full flex">
                       <div className="chat-log-details overflow-y-auto px-6">
                         <DialogboxDate/>
-                        <DialogboxSend/>
                         <DialogboxReceive/>
                         {messages.map((message, index) => (
                           <DialogboxSend key={index} input={message}/>

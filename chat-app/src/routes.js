@@ -3,6 +3,7 @@ import Login from "./Pages/Login";
 import Register from "./Pages/Register";
 import LandingPage from "./Pages/Landing";
 import Chat from "./Pages/Chat"
+import Test from "./Pages/TestReadData";
 
 const router = createBrowserRouter([
     {
@@ -16,6 +17,10 @@ const router = createBrowserRouter([
     {
         path:"/chat",
         element:<Chat/>
+    },
+    {
+        path:"/test",
+        element:<Test/>
     }
 ])
 

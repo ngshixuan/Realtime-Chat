@@ -1,12 +1,13 @@
 import './App.css';
 import router from './routes';
 import {RouterProvider} from "react-router-dom";
+import { AuthProvider } from './firebase/server-side';
 
 function App() {
   return (
-    <div>
+    <AuthProvider>
       <RouterProvider router={router}></RouterProvider>
-    </div>
+    </AuthProvider>
   );
 }
 

@@ -9,11 +9,11 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { sendPasswordResetEmail } from 'firebase/auth';
 import FormItem from 'antd/es/form/FormItem';
 import Link from 'antd/es/typography/Link';
-
+import { useAuth } from '../firebase/server-side';
 
 const Login = () => {
 
-    console.log(db);
+    // console.log(db);
   
     const navigate = useNavigate();
     const [error, setError] = useState(null);
@@ -29,13 +29,23 @@ const Login = () => {
                 return;
             }
 
-            await signInWithEmailAndPassword(auth, values.email, values.password);
-            setError(null);
+            const userCredentials = await signInWithEmailAndPassword(auth, values.email, values.password);
+            setError(null);            
             console.log("Login Success");
             navigate("/chat");
             
         } catch (error) {
             console.log(error.message);
+            // Handle specific Firebase errors
+            if(error.code === 'auth/invalid-credential'){
+                setError("Wrong email or password")
+            }else if(error.code === 'auth/user-not-found'){
+                setError("No user found with this email address")
+            }else if(error.code === 'auth/invalid-email'){
+                setError("Please enter a valid email address")
+            }else{
+                setError("An error occurred. Please try again.")
+            }
         }
         
         
@@ -94,8 +104,8 @@ const Login = () => {
                 </Form.Item>
                 
                 <Form.Item className='py-6'>
+                    {error && <div className="text-red-500 text-sm py-2">{error}</div>}
                     <Checkbox className='custom-checkbox'>Remember me</Checkbox>
-                    {error && <div className="text-red-500 text-sm mt-2">{error}</div>}
                     <Link onClick={handleResetPassword} className='text-sm mt-2 justify-end'>Forgot Password?</Link>
                 </Form.Item>
 
